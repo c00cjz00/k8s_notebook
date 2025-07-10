@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jupyter-deployment
+  namespace: <namespace-name>
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jupyter
+  template:
+    metadata:
+      labels:
+        app: jupyter
+    spec:
+      containers:
+        - name: jupyter
+          image: jupyter/base-notebook:x86_64-python-3.11
+          ports:
+            - containerPort: 8888
+          volumeMounts:
+            - name: jupyter-storage
+              mountPath: /home/jovyan/work
+          args:
+            - start-notebook.sh
+            - --NotebookApp.token=''  # 無密碼登入（或自行設定）
+      volumes:
+        - name: jupyter-storage
+          persistentVolumeClaim:
+            claimName: jupyter-pvc
