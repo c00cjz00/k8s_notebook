@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jupyter-scripts
+  namespace: <namespace-name>
+data:
+  hello_world.py: |
+    print("Hello from ConfigMap!")

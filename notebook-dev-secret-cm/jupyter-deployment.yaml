@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jupyter-deployment
+  namespace: <namespace-name>
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jupyter
+  template:
+    metadata:
+      labels:
+        app: jupyter
+    spec:
+      containers:
+        - name: jupyter
+          image: jupyter/base-notebook:x86_64-python-3.11
+          ports:
+            - containerPort: 8888
+          volumeMounts:
+            - name: jupyter-storage
+              mountPath: /home/jovyan/work
+            - name: cm-scripts
+              mountPath: /home/jovyan/work/hello_world.py
+              subPath: hello_world.py
+          args:
+            - start-notebook.sh
+            - --NotebookApp.token=$(JUPYTER_TOKEN)  # 無密碼登入（或自行設定）
+          envFrom:
+            - secretRef:
+                name: jupyter-secrets
+      volumes:
+        - name: jupyter-storage
+          persistentVolumeClaim:
+            claimName: jupyter-pvc
+        - name: cm-scripts
+          configMap:
+            name: jupyter-scripts
